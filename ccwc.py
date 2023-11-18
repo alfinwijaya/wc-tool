@@ -1,3 +1,5 @@
+# If your standard input result differ from the read file result try to run this on the powershell
+# $OutputEncoding = [console]::OutputEncoding = [System.Text.Encoding]::UTF8
 import argparse
 import sys
 
@@ -31,28 +33,28 @@ def count_chars(file_path):
         chars = len(file.read().decode())
         return chars
 
-def print_result(files, metadatas, filenames):
+def print_result(files, details, filenames):
     total_c, total_l, total_w, total_m = 0, 0, 0, 0
 
     for file in files:
         str_result = ''
-        if f'c#{file}' in metadatas and filenames[f'c#{file}'] == file:
-            bytes = metadatas[f'c#{file}']
+        if f'c#{file}' in details and filenames[f'c#{file}'] == file:
+            bytes = details[f'c#{file}']
             str_result += f'{bytes} '
             total_c += bytes
 
-        if f'l#{file}' in metadatas and filenames[f'l#{file}'] == file:
-            count = metadatas[f'l#{file}']
+        if f'l#{file}' in details and filenames[f'l#{file}'] == file:
+            count = details[f'l#{file}']
             str_result += f'{count} '
             total_l += count
 
-        if f'w#{file}' in metadatas and filenames[f'w#{file}'] == file:
-            words = metadatas[f'w#{file}']
+        if f'w#{file}' in details and filenames[f'w#{file}'] == file:
+            words = details[f'w#{file}']
             str_result += f'{words} '
             total_w += words
         
-        if f'm#{file}' in metadatas and filenames[f'm#{file}'] == file:
-            chars = metadatas[f'm#{file}']
+        if f'm#{file}' in details and filenames[f'm#{file}'] == file:
+            chars = details[f'm#{file}']
             str_result += f'{chars} '
             total_m += chars
 
@@ -85,7 +87,7 @@ def handle_standard_input(content: str, args):
     print(str_result)
 
 def handle_non_standard_input(args):
-    filenames, metadatas = {}, {}
+    filenames, details = {}, {}
 
     if not args.c and not args.l and not args.w and not args.m and args.file_paths:
         args.c, args.l, args.w = args.file_paths, args.file_paths, args.file_paths
@@ -94,29 +96,29 @@ def handle_non_standard_input(args):
         for c in args.c:
             bytes, ok = try_catch_wrapper(lambda: count_bytes(c))
             if ok:
-                metadatas[f'c#{c}'], filenames[f'c#{c}'] = bytes, c
+                details[f'c#{c}'], filenames[f'c#{c}'] = bytes, c
 
     if args.l:
         for l in args.l:
             count, ok = try_catch_wrapper(lambda: count_lines(l))
             if ok:
-                metadatas[f'l#{l}'], filenames[f'l#{l}'] = count, l
+                details[f'l#{l}'], filenames[f'l#{l}'] = count, l
     
     if args.w:
         for w in args.w:
             words, ok = try_catch_wrapper(lambda: count_words(w))
             if ok:
-                metadatas[f'w#{w}'], filenames[f'w#{w}'] = words, w
+                details[f'w#{w}'], filenames[f'w#{w}'] = words, w
 
     if args.m:
         for m in args.m:
             chars, ok = try_catch_wrapper(lambda: count_chars(m))
             if ok:
-                metadatas[f'm#{m}'], filenames[f'm#{m}'] = chars, m
+                details[f'm#{m}'], filenames[f'm#{m}'] = chars, m
 
     files = list(set(filenames.values()))
 
-    print_result(files, metadatas, filenames)
+    print_result(files, details, filenames)
 
 def main():
     parser = argparse.ArgumentParser(description='WC Tool.')
@@ -135,7 +137,6 @@ def main():
         file_content = b''.join(sys.stdin.buffer.readlines()).decode()
         sys_args = sys.argv[1:]
         handle_standard_input(file_content, sys_args)
-    
 
 if __name__ == '__main__':
     main()
