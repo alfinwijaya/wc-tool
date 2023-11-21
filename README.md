@@ -40,7 +40,7 @@ cat <file> | python ccwc.py <option>
 ```
 example:
 ```
-cat test.txt | python ccwc.py -c -l -w -mat
+cat test.txt | python ccwc.py -c -l -w -m
 ```
 
 ### Test
